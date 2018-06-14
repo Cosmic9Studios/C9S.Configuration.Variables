@@ -8,34 +8,59 @@ namespace C9S.Extensions.Configuration
 {
     public static class ConfigurationRootExtensions
     {
-        private static Regex variableRegex = new Regex(@"\{{(?<var>[^}}]+)\}}");
+        private static List<IConfigurationSection> configSections = new List<IConfigurationSection>();
 
-        public static void ResolveVariables(this IConfiguration configuration)
+        public static void ResolveVariables(this IConfiguration configuration, string open = "{{", string close = "}}")
+        {   
+            GetAllConfigurationSections(configuration.GetChildren());
+            VariableResolver(configuration, open, close);
+        }
+
+        private static void GetAllConfigurationSections(IEnumerable<IConfigurationSection> configurationSections)
         {
-            foreach (var configSection in configuration.GetChildren())
+            foreach (var section in configurationSections ?? new List<IConfigurationSection>())
             {
-                foreach (Match match in variableRegex.Matches(configSection.Value ?? ""))
+                configSections.Add(section);
+                GetAllConfigurationSections(section.GetChildren());
+            }
+        }
+
+        private static void VariableResolver(IConfiguration Configuration, string open, string close)
+        {
+            var variableRegex = new Regex($@"({open})(?!.*{open})(?<var>[^{close}]+)\{close}");
+            while (configSections.Any())
+            {
+                var currentSection = configSections.First();
+                configSections.RemoveAt(0);
+
+                Match match = variableRegex.Match(currentSection.Value ?? "");
+                if (!match.Success)
                 {
-                    var variable = match.Groups["var"].Value;
-                    var sections = new List<string>(variable.Split(new [] { '.' }, StringSplitOptions.RemoveEmptyEntries));
-                    IConfigurationSection section = configSection;
-                    if (sections.Any())
-                    {
-                        section = configuration.GetSection(sections[0]);
-                        var key = sections.Last();
-
-                        sections.RemoveAt(0);
-                        sections.RemoveAt(sections.Count - 1);
-                        foreach (var sec in sections)
-                        {
-                            section = section.GetSection(sec);
-                        }
-
-                        configSection.Value = configSection.Value.Replace($"{{{{{variable}}}}}", section[key]);
-                    }
+                    continue;
                 }
 
-                ResolveVariables(configSection);
+                var variable = match.Groups["var"].Value;
+                var sections = new List<string>(variable.Split(new [] { '.' }, System.StringSplitOptions.RemoveEmptyEntries));
+                IConfigurationSection section = currentSection;
+                if (sections.Any())
+                {
+                    section = Configuration.GetSection(sections[0]);
+                    var key = sections.Last();
+
+                    sections.RemoveAt(0);
+                    if (sections.Any())
+                    {
+                        sections.RemoveAt(sections.Count - 1);
+                    }
+
+                    foreach (var sec in sections)
+                    {
+                        section = section.GetSection(sec);
+                    }
+
+                    currentSection.Value = currentSection.Value.Replace($"{{{{{variable}}}}}", section.Value ?? section[key]);
+                    configSections.Add(currentSection);
+                }
             }
         }
     }
