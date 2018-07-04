@@ -15,7 +15,7 @@ namespace VariableInVariable
 
             var configuration = builder.Build();
 
-            configuration.ResolveVariables();
+            configuration.ResolveVariables("${", "}");
 
             Console.WriteLine(configuration.GetSection("Auth:ClientID"));
         }
