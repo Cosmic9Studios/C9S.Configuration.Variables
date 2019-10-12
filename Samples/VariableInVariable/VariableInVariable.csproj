@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\C9S.Extensions.Configuration\C9S.Extensions.Configuration.csproj" />
+    <ProjectReference Include="..\..\C9S.Configuration.Variables.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="Always" />
