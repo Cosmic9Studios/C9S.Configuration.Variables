@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
-namespace C9S.Extensions.Configuration
+namespace C9S.Configuration.Variables
 {
     public static class ConfigurationRootExtensions
     {
