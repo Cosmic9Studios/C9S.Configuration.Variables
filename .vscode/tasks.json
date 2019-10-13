@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-vinv-sample",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Samples/VariableInVariable/VariableInVariable.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

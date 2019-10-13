@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
-namespace C9S.Extensions.Configuration
+namespace C9S.Configuration.Variables
 {
     public static class ConfigurationRootExtensions
     {
@@ -27,7 +26,9 @@ namespace C9S.Extensions.Configuration
 
         private static void VariableResolver(IConfiguration Configuration, string open, string close)
         {
-            var variableRegex = new Regex($@"({open})(?!.*{open})(?<var>[^{close}]+)\{close}");
+            var open_esc = Regex.Escape(open);
+            var close_esc = Regex.Escape(close);
+            var variableRegex = new Regex($@"({open_esc})(?!.*{open_esc})(?<var>[^{close_esc}]+)\{close_esc}");
             while (configSections.Any())
             {
                 var currentSection = configSections.First();
@@ -58,7 +59,7 @@ namespace C9S.Extensions.Configuration
                         section = section.GetSection(sec);
                     }
 
-                    currentSection.Value = currentSection.Value.Replace($"{{{{{variable}}}}}", section.Value ?? section[key]);
+                    currentSection.Value = currentSection.Value.Replace($"{open}{variable}{close}", section.Value ?? section[key]);
                     configSections.Add(currentSection);
                 }
             }

@@ -1,6 +1,6 @@
 ﻿using System;
-using C9S.Extensions.Configuration;
 using Microsoft.Extensions.Configuration;
+using C9S.Configuration.Variables;
 
 namespace VariableInVariable
 {
@@ -8,14 +8,14 @@ namespace VariableInVariable
     {
         static void Main(string[] args)
         {
-            var builder = new ConfigurationBuilder()    
+            var builder = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile($"appsettings.json", optional: true)
                 .AddEnvironmentVariables();
 
             var configuration = builder.Build();
 
-            configuration.ResolveVariables();
+            configuration.ResolveVariables("${", "}");
 
             Console.WriteLine(configuration.GetSection("Auth:ClientID"));
         }
